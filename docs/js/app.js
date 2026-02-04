@@ -3,11 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const email = {
         email: '',
         asunto: '',
-        mensaje: ''
+        mensaje: '',
+        cc: true
     }
 
     // Seleccionar los elementos de la interfaz
     const inputEmail = document.querySelector('#email');
+    const inputCC = document.querySelector('#cc');
     const inputAsunto = document.querySelector('#asunto');
     const inputMensaje = document.querySelector('#mensaje');
     const formulario = document.querySelector('#formulario');
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Asignar eventos
     inputEmail.addEventListener('input', validar);
+    inputCC.addEventListener('input', validar);
     inputAsunto.addEventListener('input', validar);
     inputMensaje.addEventListener('input', validar);
 
@@ -53,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validar(e) {
-        if(e.target.value.trim() === '') {
+        if(e.target.value.trim() === '' && e.target.id !== 'cc') {
             mostrarAlerta(`El Campo ${e.target.id} es obligatorio`, e.target.parentElement);
             email[e.target.name] = '';
             comprobarEmail();
@@ -67,11 +70,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        if(e.target.id === 'cc' && !validarEmail(e.target.value) && e.target.value.trim() !== '') {
+            mostrarAlerta('El email no es válido', e.target.parentElement);
+            email.cc = false;
+            comprobarEmail();
+            return;
+        }
+
         limpiarAlerta(e.target.parentElement);
 
-        // Asignar los valores
-        email[e.target.name] = e.target.value.trim().toLowerCase();
 
+        // Asignar los valores
+        if(e.target.id !== 'cc'){
+            email[e.target.name] = e.target.value.trim().toLowerCase();
+        }
+        email.cc = true;
         // Comprobar el objeto de email
         comprobarEmail();
     }
@@ -103,7 +116,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function comprobarEmail() {
-        if(Object.values(email).includes('')) {
+        console.log(email);
+        if(Object.values(email).includes('') || !email.cc) {
             btnSubmit.classList.add('opacity-50');
             btnSubmit.disabled = true;
             return
